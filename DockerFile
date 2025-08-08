@@ -1,26 +1,14 @@
-# Utiliser une image Python avec support audio
 FROM python:3.9-slim
 
-# Installer ffmpeg et les dépendances système
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Définir le répertoire de travail
 WORKDIR /app
-
-# Copier les fichiers de requirements
 COPY requirements.txt .
-
-# Installer les dépendances Python
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Copier le code source
 COPY . .
 
-# Exposer le port
 EXPOSE $PORT
-
-# Commande pour démarrer l'application
 CMD ["gunicorn", "--bind", "0.0.0.0:$PORT", "--workers", "1", "--timeout", "300", "app:app"]
