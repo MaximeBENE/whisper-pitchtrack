@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 # Charger le modèle Whisper au démarrage (base pour équilibre vitesse/qualité)
 logger.info("Chargement du modèle Whisper...")
-model = whisper.load_model("base")
+model = whisper.load_model("tiny")
 logger.info("Modèle Whisper chargé avec succès")
 
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'mp4', 'mpeg', 'mpga', 'm4a', 'webm', 'ogg'}
