@@ -24,7 +24,7 @@ def test_route():
     return jsonify({"test": "OK", "debug": "simple flask app"})
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    logger.info(f"Démarrage de l'app DEBUG sur le port {port}")
-    print(f"Démarrage de l'app DEBUG sur le port {port}")
-    app.run(host='0.0.0.0', port=port, debug=False)
+    port = int(os.environ.get('PORT', 8080))
+    print(f"Démarrage sur le port {port}")
+    print("Application prête à recevoir des requêtes...")
+    app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
