@@ -15,15 +15,20 @@ logger = logging.getLogger(__name__)
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 logger.info(f"Using device: {DEVICE}")
 
-# Chargement du modèle Whisper au démarrage
-try:
-    # Utilisez 'base' pour un bon compromis vitesse/précision
-    # Ou 'tiny' pour plus de rapidité, 'small', 'medium', 'large' pour plus de précision
-    model = whisper.load_model("base", device=DEVICE)
-    logger.info("Modèle Whisper chargé avec succès")
-except Exception as e:
-    logger.error(f"Erreur lors du chargement du modèle Whisper: {e}")
-    model = None
+# Variable globale pour le modèle (chargé à la demande)
+model = None
+
+def load_whisper_model():
+    """Charge le modèle Whisper à la demande"""
+    global model
+    if model is None:
+        try:
+            logger.info("Chargement du modèle Whisper...")
+            model = whisper.load_model("tiny", device=DEVICE)
+            logger.info("Modèle Whisper chargé avec succès")
+        except Exception as e:
+            logger.error(f"Erreur lors du chargement du modèle Whisper: {e}")
+    return model
 
 @app.route('/', methods=['GET'])
 def health_check():
@@ -34,7 +39,8 @@ def health_check():
         "message": "Whisper API working with Gunicorn",
         "port": os.environ.get('PORT', 'not set'),
         "device": DEVICE,
-        "model_loaded": model is not None
+        "model_loaded": model is not None,
+        "note": "Model loads on first whisper request"
     }), 200
 
 @app.route('/test', methods=['GET'])
@@ -56,7 +62,9 @@ def transcribe_audio():
     """
     logger.info("=== Transcription demandée ===")
     
-    if not model:
+    # Chargement du modèle à la demande
+    current_model = load_whisper_model()
+    if not current_model:
         logger.error("Modèle Whisper non disponible")
         return jsonify({"error": "Whisper model not loaded"}), 500
     
@@ -78,7 +86,7 @@ def transcribe_audio():
                 logger.info("Début de la transcription...")
                 
                 # Transcription avec Whisper
-                result = model.transcribe(temp_file.name)
+                result = current_model.transcribe(temp_file.name)
                 
                 logger.info("Transcription terminée")
                 
