@@ -131,6 +131,6 @@ def log_response_info(response):
 
 # Pour la production avec Gunicorn, cette partie ne sera pas utilisée
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8000))
+    port = int(os.environ.get('PORT', 8080))  # Railway utilise 8080
     logger.info(f"Démarrage en mode développement sur le port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
